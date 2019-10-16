@@ -143,7 +143,7 @@ class MiniMaxPlayer:
     def get_move(self, board):
         #Check list from recursive function and make move
         moves = board.calc_valid_moves(self.symbol)
-        move = self.get_move_recursive(board, True, 10, moves[0])
+        move = self.get_move_recursive(board, True, 200, moves[0])
         return move[0]
 
 
