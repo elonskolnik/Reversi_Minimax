@@ -5,7 +5,7 @@ import copy
 
 class HumanPlayer:
 
-    def __init__(self, symbol):
+    def __init__(self, symbol, beamSearch, killerMove, transposition, qui):
         self.symbol = symbol
 
     def get_move(self, board):
@@ -104,7 +104,10 @@ class MiniMaxPlayer:
                 player = "X"
 
         # Get all moves available
-        moves = board.calc_valid_moves(player)
+        if(beamSearch):
+            moves = beamSearch(board)
+        else:
+            moves = board.calc_valid_moves(player)
         print(moves)
         movesdict = []
         # Base case reached bottom
@@ -142,6 +145,31 @@ class MiniMaxPlayer:
             else:
                 return self.find_min_score_in_list(movesdict)
 
+      def beam_search(self, board):
+        moves = board.calc_valid_moves(self.symbol)
+
+        if len(moves) > 3:
+            size = int(len(moves)/2)
+        else:
+            return moves
+
+        bestmoves = []
+        scores = {}
+        i = 0
+
+        for move in moves:
+            newboard = copy.deepcopy(board)
+            newboard.make_move(self.symbol, move)
+            scores[i] = evaluateState(self, newboard)
+            i += 1
+
+        for i in range(0, size):
+            indx = max(scores, key=scores.get)
+            bestmoves.append(moves[indx])
+            scores.pop(indx)
+
+        return bestmoves
+    
     def get_move(self, board):
         #Check list from recursive function and make move
         moves = board.calc_valid_moves(self.symbol)
