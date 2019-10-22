@@ -44,6 +44,38 @@ class MinimaxPlayer:
     def __init__(self, symbol):
         self.symbol = symbol
 
+    # creates a dictionary of current board state
+    def board_to_table(self, board, dict):
+        size = board.get_size()
+        tile = 'X'
+        otherTile = 'O'
+        current_string = ""
+        for i in size:
+            for k in size:
+                if board[k][i] == tile:
+                    current_string += tile
+                elif board[k][i] == otherTile:
+                    current_string += otherTile
+                else:
+                    current_string += " "
+                current_string += ', '
+            dict[current_string] = True
+            current_string = ""
+        return dict
+
+    # checks to see if current board state has been seen before
+    # returns True if board has been seen
+    #         False if board hasn't been seen
+    def board_is_seen(self, current, transposition_table):
+        different = False
+        current_list = current.keys()
+        transposition_list = transposition_table.keys()
+        for i, k in current_list, transposition_list:
+            if not i == k:
+                different = True
+        return not different
+
+
     def max_score(self, states):
         # takes in a list, with list elements [ [[1,2], 3], [[2,3], 4], ...]
         max_score = 0
@@ -85,8 +117,24 @@ class MinimaxPlayer:
                 return [move, self.get_score(board)]
             else:
                 for i in moves:
-                    possible_moves = board.calc_valid_moves(player)
+                    copyboard = copy.deepcopy(board)
+                    copyboard.make_move(player, i)
+                    states.append([i, self.get_score(copyboard)])
+                if my_turn:
+                    return self.max_score(states)
+                else:
+                    return self.min_score(states)
 
+        else:
+            for i in moves:
+                copyboard = copy.deepcopy(board)
+                copyboard.make_move(player,i)
+                score = self.minimax_move(copyboard, not my_turn, depth - 1, i)
+                states.append([i, score])
+            if my_turn:
+                return self.max_score(states)
+            else:
+                return self.min_score(states)
 
     def get_move(self, board):
         moves = board.calc_valid_moves(self.symbol)
@@ -94,6 +142,7 @@ class MinimaxPlayer:
         chosen = self.minimax_move(board, True, 3, move)
         print(chosen)
         return chosen
+
 
 class HumanPlayer:
 
