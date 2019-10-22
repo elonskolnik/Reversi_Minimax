@@ -62,15 +62,17 @@ class MiniMaxPlayer:
         self.symbol = symbol
 
     def move_score(self, board):
-        score = board.calc_scores()
-
-        #Subtract opponent from agent symbol
-        myscore = score.get(self.symbol)
-        if self.symbol == "X":
-            opponentscore = score.get("O")
-        else:
-            opponentscore = score.get("X")
-        return myscore - opponentscore
+        score = board.calc_scores().get(self.symbol) - board.calc_scores().get(board.get_opponent_symbol(self.symbol))
+        size = board.get_size() - 1
+        for x in range(0, size):
+            for y in range(0, size):
+                pos = x, y
+                if board.get_symbol_for_position(pos) == self.symbol:
+                    if pos == [0, 0] or pos == [0, size] or pos == [size, 0] or pos == [size, size]:
+                        score += 12
+                    elif x == 0 or x == size or y == 0 or y == size:
+                        score += 5
+        return score
 
     #Returns move with min or max score
     def find_max_score_in_list(self, moves_list):
