@@ -169,8 +169,7 @@ class MiniMaxPlayer:
         for move in moves:
             newboard = copy.deepcopy(board)
             newboard.make_move(self.symbol, move)
-            # TODO: include evaluateState when complete
-            scores[i] = evaluateState(self, newboard)
+            scores[i] = self.move_score(newboard)
             i += 1
 
         for i in range(0, size):
