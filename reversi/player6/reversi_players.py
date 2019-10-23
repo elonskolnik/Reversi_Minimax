@@ -12,7 +12,7 @@ class HumanPlayer:
         # Let the player type in their move.
         # Returns the move as [x, y] (or returns the strings 'hints' or 'quit')
         valid_digits = []
-        for i in range(1, board.get_size()+1):
+        for i in range(1, board.get_size() + 1):
             valid_digits.append(str(i))
         no_valid_move = True
         while no_valid_move:
@@ -37,10 +37,12 @@ class RandomComputerPlayer:
     def get_move(self, board):
         return random.choice(board.calc_valid_moves(self.symbol))
 
+
 class GreedyPlayer:
     def __init__(self, symbol):
         self.symbol = symbol
-    #Greedy agent to maximize utility of each available move and decide which to take
+
+    # Greedy agent to maximize utility of each available move and decide which to take
 
     def get_move(self, board):
         choices = board.calc_valid_moves(self.symbol)
@@ -130,7 +132,6 @@ class MiniMaxPlayer:
                 score = self.move_score(board)
                 movesdict.append([i, score])
 
-
             # Return move with correct score
             if opposite:
                 return self.find_max_score_in_list(movesdict)
@@ -158,7 +159,7 @@ class MiniMaxPlayer:
         moves = board.calc_valid_moves(self.symbol)
 
         if len(moves) > 3:
-            size = int(len(moves)/2)
+            size = int(len(moves) / 2)
         else:
             return moves
 
@@ -178,9 +179,9 @@ class MiniMaxPlayer:
             scores.pop(indx)
 
         return bestmoves
-    
+
     def get_move(self, board):
-        #Check list from recursive function and make move
+        # Check list from recursive function and make move
         moves = board.calc_valid_moves(self.symbol)
         move = self.get_move_recursive(board, True, 200, moves[0])
         return move[0]
@@ -297,8 +298,7 @@ class KillerMovePlayer:
         for move in moves:
             newboard = copy.deepcopy(board)
             newboard.make_move(self.symbol, move)
-            # TODO: include evaluateState when complete
-            scores[i] = evaluateState(self, newboard)
+            scores[i] = self.move_score(newboard)
             i += 1
 
         for i in range(0, size):
@@ -308,7 +308,7 @@ class KillerMovePlayer:
 
         return bestmoves
 
-    def killer_move_check(self, board):#add block moves
+    def killer_move_check(self, board):  # add block moves
         val_moves = board.calc_valid_moves(self.symbol)
         valid_digits = []
         for i in range(1, board.get_size() + 1):
@@ -328,7 +328,7 @@ class KillerMovePlayer:
                     return x[0], x[1]
 
                 elif x[0] == valid_digits[len(valid_digits) - 1] and x[1] == valid_digits[len(valid_digits) - 1]:
-                    self.killerMove= True
+                    self.killerMove = True
                     return x[0], x[1]
 
         self.killerMove = False
@@ -342,5 +342,3 @@ class KillerMovePlayer:
         moves = board.calc_valid_moves(self.symbol)
         move = self.get_move_recursive(board, True, 200, moves[0])
         return move[0]
-
-
