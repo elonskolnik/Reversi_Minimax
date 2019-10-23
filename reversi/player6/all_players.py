@@ -1,5 +1,4 @@
-from reversi.player6.transposition_table_player import TranspositionTablePlayer, TranspositionTable
-from reversi.player6.reversi_players import MiniMaxPlayer
+from reversi.player6.reversi_players import MiniMaxPlayer, TranspositionTablePlayer
 
 
 def get_default_player(symbol):
