@@ -1,12 +1,12 @@
 from reversi.player6.transposition_table_player import TranspositionTablePlayer, TranspositionTable
-
+from reversi.player6.reversi_players import MiniMaxPlayer
 
 
 def get_default_player(symbol):
     """
     :returns: a default minimax player that can operate successfully on a given 8x8 board
     """
-    pass
+    return MiniMaxPlayer(symbol)
 
 
 def get_player_a(symbol):
@@ -16,7 +16,6 @@ def get_player_a(symbol):
     :returns: an enhanced minimax player that can operate successfully on a given 8x8 board
     """
     return TranspositionTablePlayer(symbol)
-
 
 
 def get_player_b(symbol):
