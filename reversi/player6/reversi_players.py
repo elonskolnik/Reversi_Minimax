@@ -5,7 +5,7 @@ import copy
 
 class HumanPlayer:
 
-    def __init__(self, symbol, beamSearch, killerMove, transposition, qui):
+    def __init__(self, symbol):
         self.symbol = symbol
 
     def get_move(self, board):
@@ -56,10 +56,19 @@ class GreedyPlayer:
 
         return move
 
+
 class MiniMaxPlayer:
     #Minimax agent that calculates 5 levels
-    def __init__(self, symbol):
+    def __init__(self, symbol, beamSearch, killerMove, transposition, qui):
         self.symbol = symbol
+        if beamSearch:
+            self.beamSearch = True
+        if killerMove:
+            self.killerMove = True
+        if transposition:
+            self.transposition = True
+        if qui:
+            self.qui = True
 
     def move_score(self, board):
         score = board.calc_scores().get(self.symbol) - board.calc_scores().get(board.get_opponent_symbol(self.symbol))
@@ -104,8 +113,8 @@ class MiniMaxPlayer:
                 player = "X"
 
         # Get all moves available
-        if(beamSearch):
-            moves = beamSearch(board)
+        if(self.beamSearch):
+            moves = self.beam_search(board)
         else:
             moves = board.calc_valid_moves(player)
         print(moves)
@@ -145,7 +154,8 @@ class MiniMaxPlayer:
             else:
                 return self.find_min_score_in_list(movesdict)
 
-      def beam_search(self, board):
+
+    def beam_search(self, board):
         moves = board.calc_valid_moves(self.symbol)
 
         if len(moves) > 3:
