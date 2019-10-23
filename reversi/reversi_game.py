@@ -3,7 +3,8 @@
 import copy
 from datetime import datetime
 from reversi.reversi_board import ReversiBoard
-from reversi.reversi_players import HumanPlayer, RandomComputerPlayer, GreedyPlayer, MinimaxPlayer
+from reversi.player6.reversi_players import HumanPlayer, RandomComputerPlayer, GreedyPlayer, MiniMaxPlayer
+from reversi.player6.transposition_table_player import TranspositionTablePlayer
 
 
 class ReversiGame:
@@ -104,7 +105,7 @@ def compare_players(player1, player2, board_size=8,  board_filename=None):
 
 def main():
     # ReversiGame(HumanPlayer("X"), RandomComputerPlayer("O"), board_filename="board4by4nearEnd.json")
-    compare_players(MinimaxPlayer("X"), GreedyPlayer("O"), board_size=4)
+    compare_players(TranspositionTablePlayer("X"), GreedyPlayer("O"), board_size=4)
 
 
 if __name__ == "__main__":

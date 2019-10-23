@@ -58,7 +58,7 @@ class GreedyPlayer:
 
 
 class MiniMaxPlayer:
-    #Minimax agent that calculates 5 levels
+    # Minimax agent that calculates 5 levels
     def __init__(self, symbol, beamSearch, killerMove, transposition, qui):
         self.symbol = symbol
         if beamSearch:
@@ -83,7 +83,7 @@ class MiniMaxPlayer:
                         score += 5
         return score
 
-    #Returns move with min or max score
+    # Returns move with min or max score
     def find_max_score_in_list(self, moves_list):
         score = moves_list[0][1]
         move = moves_list[0][0]
@@ -102,7 +102,7 @@ class MiniMaxPlayer:
                 move = i[0]
         return [move, score]
 
-    #Calculate n moves ahead, then use greedy algorithm to assign a value
+    # Calculate n moves ahead, then use greedy algorithm to assign a value
     def get_move_recursive(self, board, opposite, curr_depth, move):
         if opposite:
             player = self.symbol
@@ -113,7 +113,7 @@ class MiniMaxPlayer:
                 player = "X"
 
         # Get all moves available
-        if(self.beamSearch):
+        if self.beamSearch:
             moves = self.beam_search(board)
         else:
             moves = board.calc_valid_moves(player)
@@ -131,15 +131,15 @@ class MiniMaxPlayer:
                 movesdict.append([i, score])
 
 
-            #Return move with correct score
+            # Return move with correct score
             if opposite:
                 return self.find_max_score_in_list(movesdict)
 
             else:
                 return self.find_min_score_in_list(movesdict)
 
-        #Call recursive function on board with moves made
-        #Send with switched player
+        # Call recursive function on board with moves made
+        # Send with switched player
         for i in moves:
 
             newboard = board
@@ -148,12 +148,11 @@ class MiniMaxPlayer:
             move_value = self.get_move_recursive(newboard, not opposite, curr_depth - 1, i)
             movesdict.append([i, move_value[1]])
 
-            #Return min or max move depending on symbol
+            # Return min or max move depending on symbol
             if opposite:
                 return self.find_max_score_in_list(movesdict)
             else:
                 return self.find_min_score_in_list(movesdict)
-
 
     def beam_search(self, board):
         moves = board.calc_valid_moves(self.symbol)
@@ -170,6 +169,7 @@ class MiniMaxPlayer:
         for move in moves:
             newboard = copy.deepcopy(board)
             newboard.make_move(self.symbol, move)
+            # TODO: include evaluateState when complete
             scores[i] = evaluateState(self, newboard)
             i += 1
 
