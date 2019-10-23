@@ -5,7 +5,7 @@ def get_default_player(symbol):
     """
     :returns: a default minimax player that can operate successfully on a given 8x8 board
     """
-    return MiniMaxPlayer(symbol)
+    return MiniMaxPlayer(symbol, False, False, False, False)
 
 
 def get_player_a(symbol):
@@ -19,11 +19,11 @@ def get_player_a(symbol):
 
 def get_player_b(symbol):
     """
-    :author:
-    :enchancement:
+    :author: Elon Skolnik
+    :enchancement: Beam search
     :returns: an enhanced minimax player that can operate successfully on a given 8x8 board
     """
-    pass
+    return MiniMaxPlayer(symbol, True, False, False, False)
 
 
 def get_player_c(symbol):
