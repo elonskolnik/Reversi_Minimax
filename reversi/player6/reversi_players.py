@@ -104,6 +104,11 @@ class MiniMaxPlayer:
                 move = i[0]
         return [move, score]
 
+    def transpositiontable(self, board):
+        newtable = TranspositionTable()
+        newtable.board_to_table(board)
+        return board.seen_board(newtable)
+
     # Calculate n moves ahead, then use greedy algorithm to assign a value
     def get_move_recursive(self, board, opposite, curr_depth, move):
         if opposite:
@@ -129,8 +134,19 @@ class MiniMaxPlayer:
             for i in moves:
                 newboard = board
                 newboard.make_move(player, i)
-                score = self.move_score(board)
-                movesdict.append([i, score])
+
+                if self.transposition:
+                    if self.transpositiontable(newboard):
+                        if opposite:
+                            return [i, board.calc_scores()[self.symbol]]
+                        else:
+                            return [i, board.calc_scores()[board.get_opponent_symbol(self.symbol)]]
+                    else:
+                        score = self.move_score(board)
+                        movesdict.append([i, score])
+                else:
+                    score = self.move_score(board)
+                    movesdict.append([i, score])
 
             # Return move with correct score
             if opposite:
@@ -145,9 +161,18 @@ class MiniMaxPlayer:
 
             newboard = board
             newboard.make_move(player, i)
-            print("Moving To: ", i)
-            move_value = self.get_move_recursive(newboard, not opposite, curr_depth - 1, i)
-            movesdict.append([i, move_value[1]])
+            if self.transposition:
+                if self.transpositiontable(newboard):
+                    if opposite:
+                        return [i, board.calc_scores()[self.symbol]]
+                    else:
+                        return [i, board.calc_scores()[board.get_opponent_symbol(self.symbol)]]
+                else:
+                    move_value = self.get_move_recursive(newboard, not opposite, curr_depth - 1, i)
+                    movesdict.append([i, move_value[1]])
+            else:
+                move_value = self.get_move_recursive(newboard, not opposite, curr_depth - 1, i)
+                movesdict.append([i, move_value[1]])
 
             # Return min or max move depending on symbol
             if opposite:
@@ -421,7 +446,8 @@ class KillerMovePlayer:
 
             newboard = board
             newboard.make_move(player, i)
-            print("Moving To: ", i)
+
+            # print("Moving To: ", i)
             move_value = self.get_move_recursive(newboard, not opposite, curr_depth - 1, i)
             movesdict.append([i, move_value[1]])
 
