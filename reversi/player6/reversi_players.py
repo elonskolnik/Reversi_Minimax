@@ -121,7 +121,7 @@ class MiniMaxPlayer:
             moves = self.beam_search(board)
         else:
             moves = board.calc_valid_moves(player)
-        print(moves)
+        random.shuffle(moves)
         movesdict = []
         # Base case reached bottom
         # Return max score if opposite = true
@@ -207,6 +207,9 @@ class MiniMaxPlayer:
         moves = board.calc_valid_moves(self.symbol)
         move = self.get_move_recursive(board, True, 200, moves[0])
         return move[0]
+
+    def set_symbol(self, symbolIn):
+        self.symbol = symbolIn
 
 class TranspositionTable:
 
@@ -302,7 +305,7 @@ class KillerMovePlayer:
             moves = self.beam_search(board)
         else:
             moves = board.calc_valid_moves(player)
-        print(moves)
+        moves = random.shuffle(moves)
         movesdict = []
         # Base case reached bottom
         # Return max score if opposite = true
@@ -450,7 +453,7 @@ class UltimatePlayer:
 
         # Get all moves available
 
-        moves = self.beam_search(board)
+        moves = random.shuffle(self.beam_search(board))
 
         print(moves)
         movesdict = []
@@ -539,3 +542,6 @@ class UltimatePlayer:
         moves = board.calc_valid_moves(self.symbol)
         move = self.get_move_recursive(board, True, 200, moves[0])
         return move[0]
+
+    def set_symbol(self, symbolIn):
+        self.symbol = symbolIn

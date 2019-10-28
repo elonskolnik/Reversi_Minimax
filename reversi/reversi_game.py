@@ -105,6 +105,7 @@ def compare_players(player1, player2, board_size=8,  board_filename=None):
 def main():
     # ReversiGame(HumanPlayer("X"), RandomComputerPlayer("O"), board_filename="board4by4nearEnd.json")
     compare_players(players.get_player_b("O"), GreedyPlayer("X"), board_size=4)
+    # compare_players(players.get_player_b("O"), players.get_combined_player("X"), board_size=4)
 
 
 if __name__ == "__main__":
