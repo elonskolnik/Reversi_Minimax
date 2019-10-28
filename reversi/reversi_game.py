@@ -85,7 +85,7 @@ def print_scores(score_map):
 def compare_players(player1, player2, board_size=8,  board_filename=None):
     game_count_map = {player1.symbol: 0, player2.symbol: 0, "TIE": 0}
     time_elapsed_map = {player1.symbol: 0, player2.symbol: 0}
-    for i in range(1, 1000):
+    for i in range(1, 500):
         if i % 100 == 0:
             print(i, "games finished")
         game = ReversiGame(player1, player2, show_status=False, board_size=board_size,
@@ -104,7 +104,7 @@ def compare_players(player1, player2, board_size=8,  board_filename=None):
 
 def main():
     # ReversiGame(HumanPlayer("X"), RandomComputerPlayer("O"), board_filename="board4by4nearEnd.json")
-    compare_players(players.get_player_b("O"), GreedyPlayer("X"), board_size=4)
+    compare_players(players.get_default_player("O"), GreedyPlayer("X"), board_size=4)
 
 
 if __name__ == "__main__":
