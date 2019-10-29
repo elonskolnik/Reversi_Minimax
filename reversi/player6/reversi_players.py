@@ -69,6 +69,15 @@ class MiniMaxPlayer:
         self.qui = qui
         self.table = TranspositionTable()
 
+    def quiCalc(self, boardBefore, boardAfter):
+        scoresBefore = boardBefore.calc_scores()
+        scoresAfter = boardAfter.calc_scores()
+        bscore1 = scoresBefore.get('X')
+        bscore2 = scoresBefore.get('O')
+        ascore1 = boardAfter.get('X')
+        ascore2 = boardAfter.get('O')
+        return abs(abs(ascore1 - ascore2) - abs(bscore1 - bscore2))
+
     def move_score(self, board):
         score = board.calc_scores().get(self.symbol) - board.calc_scores().get(board.get_opponent_symbol(self.symbol))
         size = board.get_size() - 1
@@ -155,21 +164,34 @@ class MiniMaxPlayer:
         # Call recursive function on board with moves made
         # Send with switched player
         for i in moves:
-
+            quiBoard = copy.deepcopy(board)
             newboard = copy.deepcopy(board)
             newboard.make_move(player, i)
-            if self.transposition:
-                if self.transpositiontable(newboard):
-                    if opposite:
-                        return [i, board.calc_scores()[self.symbol]]
+            #If quiescense, add moves to movesdict without calling recursive on them
+            #Then call recursive on the rest
+            qscore = 0
+            if self.qui:
+                #Check quiescense on move
+                qscore = self.quiCalc(quiBoard, newboard)
+                #Small change in state, add moves with heuristic
+                if qscore < 5:
+                    movesdict.append([i, self.move_score(newboard)])
+
+
+            #Large state change, or quiescense turned of
+            if not self.qui or qscore >= 5:
+                if self.transposition:
+                    if self.transpositiontable(newboard):
+                        if opposite:
+                            return [i, board.calc_scores()[self.symbol]]
+                        else:
+                            return [i, board.calc_scores()[board.get_opponent_symbol(self.symbol)]]
                     else:
-                        return [i, board.calc_scores()[board.get_opponent_symbol(self.symbol)]]
+                        move_value = self.get_move_recursive(newboard, not opposite, curr_depth - 1, i)
+                        movesdict.append([i, move_value[1]])
                 else:
                     move_value = self.get_move_recursive(newboard, not opposite, curr_depth - 1, i)
                     movesdict.append([i, move_value[1]])
-            else:
-                move_value = self.get_move_recursive(newboard, not opposite, curr_depth - 1, i)
-                movesdict.append([i, move_value[1]])
 
             # Return min or max move depending on symbol
             if opposite:

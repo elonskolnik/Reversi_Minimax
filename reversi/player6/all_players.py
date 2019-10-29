@@ -28,11 +28,13 @@ def get_player_b(symbol):
 
 def get_player_c(symbol):
     """
-    :author:
-    :enchancement:
+    :author: Liam Pfaff
+    :enchancement: Quiescense to speed up the function
     :returns: an enhanced minimax player that can operate successfully on a given 8x8 board
+                calculates whether or not a given move will have a large change in score,
+                if not, it will not recursively calculate that move.
     """
-    pass
+    return MiniMaxPlayer(symbol, False, False, False, True)
 
 
 def get_player_d(symbol):
