@@ -74,8 +74,8 @@ class MiniMaxPlayer:
         scoresAfter = boardAfter.calc_scores()
         bscore1 = scoresBefore.get('X')
         bscore2 = scoresBefore.get('O')
-        ascore1 = boardAfter.get('X')
-        ascore2 = boardAfter.get('O')
+        ascore1 = scoresAfter.get('X')
+        ascore2 = scoresAfter.get('O')
         return abs(abs(ascore1 - ascore2) - abs(bscore1 - bscore2))
 
     def move_score(self, board):
