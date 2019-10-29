@@ -130,7 +130,7 @@ class MiniMaxPlayer:
             moves = self.beam_search(board)
         else:
             moves = board.calc_valid_moves(player)
-        #print(moves)
+        # print(moves)
         movesdict = []
         # Base case reached bottom
         # Return max score if opposite = true
@@ -148,10 +148,18 @@ class MiniMaxPlayer:
                         else:
                             return [i, board.calc_scores()[board.get_opponent_symbol(self.symbol)]]
                     else:
-                        score = self.move_score(board)
+                        score = self.move_score(newboard)
+                        if self.killerMove:
+                            bonus = KillerMove(self.symbol).check_if_killer_move(newboard, i)
+                            if bonus is not None:
+                                score = score + bonus
                         movesdict.append([i, score])
                 else:
-                    score = self.move_score(board)
+                    score = self.move_score(newboard)
+                    if self.killerMove:
+                        bonus = KillerMove(self.symbol).check_if_killer_move(newboard, i)
+                        if bonus is not None:
+                            score = score + bonus
                     movesdict.append([i, score])
 
             # Return move with correct score
@@ -167,18 +175,17 @@ class MiniMaxPlayer:
             quiBoard = copy.deepcopy(board)
             newboard = copy.deepcopy(board)
             newboard.make_move(player, i)
-            #If quiescense, add moves to movesdict without calling recursive on them
-            #Then call recursive on the rest
+            # If quiescense, add moves to movesdict without calling recursive on them
+            # Then call recursive on the rest
             qscore = 0
             if self.qui:
-                #Check quiescense on move
+                # Check quiescense on move
                 qscore = self.quiCalc(quiBoard, newboard)
-                #Small change in state, add moves with heuristic
+                # Small change in state, add moves with heuristic
                 if qscore < 5:
                     movesdict.append([i, self.move_score(newboard)])
 
-
-            #Large state change, or quiescense turned of
+            # Large state change, or quiescense turned of
             if not self.qui or qscore >= 5:
                 if self.transposition:
                     if self.transpositiontable(newboard):
@@ -188,9 +195,17 @@ class MiniMaxPlayer:
                             return [i, board.calc_scores()[board.get_opponent_symbol(self.symbol)]]
                     else:
                         move_value = self.get_move_recursive(newboard, not opposite, curr_depth - 1, i)
+                        if self.killerMove:
+                            bonus = KillerMove(self.symbol).check_if_killer_move(newboard, i)
+                            if bonus is not None:
+                                move_value[1] = move_value[1] + bonus
                         movesdict.append([i, move_value[1]])
                 else:
                     move_value = self.get_move_recursive(newboard, not opposite, curr_depth - 1, i)
+                    if self.killerMove:
+                        bonus = KillerMove(self.symbol).check_if_killer_move(newboard, i)
+                        if bonus is not None:
+                            move_value[1] = move_value[1] + bonus
                     movesdict.append([i, move_value[1]])
 
             # Return min or max move depending on symbol
@@ -293,7 +308,7 @@ class MiniMaxPlayer2:
             moves = self.beam_search(board)
         else:
             moves = board.calc_valid_moves(player)
-        #print(moves)
+        # print(moves)
         movesdict = []
         # Base case reached bottom
         # Return max score if opposite = true
@@ -380,6 +395,7 @@ class MiniMaxPlayer2:
         move = self.get_move_recursive(board, True, 400, moves[0])
         return move[0]
 
+
 class TranspositionTable:
 
     def __init__(self):
@@ -391,7 +407,7 @@ class TranspositionTable:
         self.table = {}
         for i in range(size):
             for k in range(size):
-                current_pos = [i,k]
+                current_pos = [i, k]
                 current_symbol = board.get_symbol_for_position(current_pos)
                 if current_symbol == "X":
                     current_row += "X"
@@ -412,3 +428,48 @@ class TranspositionTable:
             if i not in seen_states:
                 seen = False
         return seen
+
+
+class KillerMove:
+    def __init__(self, symbol):
+        self.symbol = symbol
+
+    def check_if_killer_move(self, board, move):
+        valid_digits = []
+        copy_board = copy.deepcopy(board)
+        copy_board.make_move(self.symbol, move)
+        opponent_symbol = board.get_opponent_symbol(self.symbol)
+        for i in range(board.get_size()):
+            valid_digits.append(i)
+
+        if move[0] == valid_digits[0] and move[1] == valid_digits[0]:
+            return 8
+
+        elif move[0] == valid_digits[0] and move[1] == valid_digits[-1]:
+            return 8
+
+        elif move[0] == valid_digits[-1] and move[1] == valid_digits[0]:
+            return 8
+
+        elif move[0] == valid_digits[-1] and move[1] == valid_digits[-1]:
+            return 8
+
+        elif self.find_max_move(board, opponent_symbol) > self.find_max_move(copy_board, opponent_symbol):
+            return 8
+        return None
+
+    def find_max_move(self, board, symbol):
+        val_moves = board.calc_valid_moves(symbol)
+        potential_scores = {}
+        for x in val_moves:
+            potential_scores[str(x)] = len(board.is_valid_move(symbol, x))
+        if len(val_moves) > 0:
+            best_choice = val_moves[0]
+            highest_val = potential_scores.get(str(best_choice))
+            for x in val_moves:
+                if potential_scores.get(str(x)) > highest_val:
+                    highest_val = potential_scores.get(str(x))
+                    best_choice = x
+
+            return potential_scores.get(str(best_choice))
+        return 0

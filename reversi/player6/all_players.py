@@ -43,7 +43,7 @@ def get_player_d(symbol):
     :enchancement:
     :returns: an enhanced minimax player that can operate successfully on a given 8x8 board
     """
-    pass
+    return MiniMaxPlayer(symbol, False, False, True, False)
 
 
 def get_combined_player(symbol):
