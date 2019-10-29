@@ -69,6 +69,178 @@ class MiniMaxPlayer:
         self.qui = qui
         self.table = TranspositionTable()
 
+    def quiCalc(self, boardBefore, boardAfter):
+        scoresBefore = boardBefore.calc_scores()
+        scoresAfter = boardAfter.calc_scores()
+        bscore1 = scoresBefore.get('X')
+        bscore2 = scoresBefore.get('O')
+        ascore1 = scoresAfter.get('X')
+        ascore2 = scoresAfter.get('O')
+        return abs(abs(ascore1 - ascore2) - abs(bscore1 - bscore2))
+
+    def move_score(self, board):
+        score = board.calc_scores().get(self.symbol) - board.calc_scores().get(board.get_opponent_symbol(self.symbol))
+        size = board.get_size() - 1
+        for x in range(0, size):
+            for y in range(0, size):
+                pos = x, y
+                if board.get_symbol_for_position(pos) == self.symbol:
+                    if pos == [0, 0] or pos == [0, size] or pos == [size, 0] or pos == [size, size]:
+                        score += 12
+                    elif x == 0 or x == size or y == 0 or y == size:
+                        score += 5
+        return score
+
+    # Returns move with min or max score
+    def find_max_score_in_list(self, moves_list):
+        score = moves_list[0][1]
+        move = moves_list[0][0]
+        for i in moves_list:
+            if i[1] > score:
+                score = i[1]
+                move = i[0]
+        return [move, score]
+
+    def find_min_score_in_list(self, moves_list):
+        score = moves_list[0][1]
+        move = moves_list[0][0]
+        for i in moves_list:
+            if i[1] < score:
+                score = i[1]
+                move = i[0]
+        return [move, score]
+
+    def transpositiontable(self, board):
+        newtable = TranspositionTable()
+        newtable.board_to_table(board)
+        return self.table.seen_board(newtable)
+
+    # Calculate n moves ahead, then use greedy algorithm to assign a value
+    def get_move_recursive(self, board, opposite, curr_depth, move):
+        if opposite:
+            player = self.symbol
+        else:
+            if self.symbol == "X":
+                player = "O"
+            else:
+                player = "X"
+
+        # Get all moves available
+        if self.beamSearch:
+            moves = self.beam_search(board)
+        else:
+            moves = board.calc_valid_moves(player)
+        #print(moves)
+        movesdict = []
+        # Base case reached bottom
+        # Return max score if opposite = true
+        if curr_depth < 1 or len(moves) < 2:
+            if len(moves) == 0:
+                return [move, self.move_score(board)]
+            for i in moves:
+                newboard = board
+                newboard.make_move(player, i)
+
+                if self.transposition:
+                    if self.transpositiontable(newboard):
+                        if opposite:
+                            return [i, board.calc_scores()[self.symbol]]
+                        else:
+                            return [i, board.calc_scores()[board.get_opponent_symbol(self.symbol)]]
+                    else:
+                        score = self.move_score(board)
+                        movesdict.append([i, score])
+                else:
+                    score = self.move_score(board)
+                    movesdict.append([i, score])
+
+            # Return move with correct score
+            if opposite:
+                return self.find_max_score_in_list(movesdict)
+
+            else:
+                return self.find_min_score_in_list(movesdict)
+
+        # Call recursive function on board with moves made
+        # Send with switched player
+        for i in moves:
+            quiBoard = copy.deepcopy(board)
+            newboard = copy.deepcopy(board)
+            newboard.make_move(player, i)
+            #If quiescense, add moves to movesdict without calling recursive on them
+            #Then call recursive on the rest
+            qscore = 0
+            if self.qui:
+                #Check quiescense on move
+                qscore = self.quiCalc(quiBoard, newboard)
+                #Small change in state, add moves with heuristic
+                if qscore < 5:
+                    movesdict.append([i, self.move_score(newboard)])
+
+
+            #Large state change, or quiescense turned of
+            if not self.qui or qscore >= 5:
+                if self.transposition:
+                    if self.transpositiontable(newboard):
+                        if opposite:
+                            return [i, board.calc_scores()[self.symbol]]
+                        else:
+                            return [i, board.calc_scores()[board.get_opponent_symbol(self.symbol)]]
+                    else:
+                        move_value = self.get_move_recursive(newboard, not opposite, curr_depth - 1, i)
+                        movesdict.append([i, move_value[1]])
+                else:
+                    move_value = self.get_move_recursive(newboard, not opposite, curr_depth - 1, i)
+                    movesdict.append([i, move_value[1]])
+
+            # Return min or max move depending on symbol
+            if opposite:
+                return self.find_max_score_in_list(movesdict)
+            else:
+                return self.find_min_score_in_list(movesdict)
+
+    def beam_search(self, board):
+        moves = board.calc_valid_moves(self.symbol)
+
+        if len(moves) > 3:
+            size = int(len(moves) / 2)
+        else:
+            return moves
+
+        bestmoves = []
+        scores = {}
+        i = 0
+
+        for move in moves:
+            newboard = copy.deepcopy(board)
+            newboard.make_move(self.symbol, move)
+            scores[i] = self.move_score(newboard)
+            i += 1
+
+        for i in range(0, size):
+            indx = max(scores, key=scores.get)
+            bestmoves.append(moves[indx])
+            scores.pop(indx)
+
+        return bestmoves
+
+    def get_move(self, board):
+        # Check list from recursive function and make move
+        moves = board.calc_valid_moves(self.symbol)
+        move = self.get_move_recursive(board, True, 4, moves[0])
+        return move[0]
+
+
+class MiniMaxPlayer2:
+    # Minimax agent that calculates 5 levels
+    def __init__(self, symbol, beamSearch, killerMove, transposition, qui):
+        self.symbol = symbol
+        self.beamSearch = beamSearch
+        self.killerMove = killerMove
+        self.transposition = transposition
+        self.qui = qui
+        self.table = TranspositionTable()
+
     def move_score(self, board):
         score = board.calc_scores().get(self.symbol) - board.calc_scores().get(board.get_opponent_symbol(self.symbol))
         size = board.get_size() - 1
